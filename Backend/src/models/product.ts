@@ -1,4 +1,4 @@
-import { Model,Optional,DataType, DataTypes } from "sequelize";
+import { Model,Optional, DataTypes } from "sequelize";
 import { sequelize } from "../config/db";
 
 interface ProductAttributes{
@@ -6,6 +6,7 @@ interface ProductAttributes{
   name:string;
   description:string;
   price:number;
+  imageUrl:string;
   stock:number;
   category:string
 }
@@ -17,6 +18,7 @@ export default class Product extends Model<ProductAttributes,ProductCreationAttr
   public name!:string;
   public description!: string;
   public price!:number;
+  public imageUrl!: string;
   public stock!:number;
   public category!: string; 
   public readonly createdAt!:Date;
@@ -42,6 +44,10 @@ Product.init({
   price:{
     type:DataTypes.FLOAT,
     allowNull:false,
+  },
+  imageUrl:{
+    type:DataTypes.STRING,
+    allowNull:false
   },
   stock:{
     type:DataTypes.INTEGER,

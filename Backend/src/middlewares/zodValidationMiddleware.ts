@@ -1,0 +1,35 @@
+import { Request,Response,NextFunction } from "express";
+
+import { AnyZodObject,ZodError } from "zod/v3";
+
+
+ const zodValidationMiddleware = (schema:AnyZodObject)=>
+    (req:Request,res:Response,next:NextFunction)=>{
+
+        try{
+            schema.parse({
+                body:req.body,
+                query:req.query,
+                params:req.params
+            })
+            next()
+        }
+        catch(err){
+            if(err instanceof ZodError){
+                return res.status(400).json({
+                    success:false,
+                    errors: err.errors.map(e=>({
+                        field: e.path.join('.'),
+                        message: e.message
+                    }))
+                })
+            }
+            next(err)
+        }
+
+
+
+    }
+
+    export default zodValidationMiddleware
+
