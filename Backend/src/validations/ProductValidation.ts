@@ -18,6 +18,10 @@ export const productCreateSchema = z.object({
 export const productUpdateSchema = z.object({
     body:z.object({
         name:z.string().min(1).optional(),
-        
+        description:z.string().optional(),
+        price:z.number().min(0).optional(),
+        imageUrl:z.string().url().optional(),
+        stock:z.number().int().min(0).optional(),
+        category:z.string().optional()
     })
 })

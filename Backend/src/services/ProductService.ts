@@ -1,10 +1,12 @@
 import ProductRepository from "../repositories/ProductRepository";
+import createError  from "../utils/createError";
 
 class ProductService{
     async createProduct(data:{
         name:string;
         description:string;
         price:number;
+        imageUrl:string,
         stock:number;
         category:string;
     }){
@@ -23,11 +25,12 @@ class ProductService{
             name:string;
             description:string;
             price:number;
+            imageUrl:string,
             stock:number;
             category:string;
     }>){
         const updated = await ProductRepository.updateProduct(id,data)
-        if(!updated) throw new Error("Product not found")
+        if(!updated) throw createError("Product not found", 404)
             return updated
     }
     async deleteProduct(id:number){

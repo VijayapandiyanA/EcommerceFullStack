@@ -5,6 +5,7 @@ class ProductRepository{
         name:string;
         description:string 
         price:number,
+        imageUrl:string,
         stock:number 
         category:string 
     }) {
@@ -23,6 +24,7 @@ class ProductRepository{
          name:string,
          description:string,
          price:number,
+         imageUrl:string,
          stock:number;
          category:string
     }>){

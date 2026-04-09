@@ -1,35 +1,29 @@
-import { Request,Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
+import { ZodError, ZodTypeAny, ZodIssue } from "zod";
 
-import { AnyZodObject,ZodError } from "zod/v3";
+const zodValidationMiddleware = (schema: ZodTypeAny) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    try {
+      schema.parse({
+        body: req.body,
+        query: req.query,
+        params: req.params
+      });
 
+      next();
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return res.status(400).json({
+          success: false,
+          errors: err.issues.map((e: ZodIssue) => ({
+            field: e.path.join("."),
+            message: e.message
+          }))
+        });
+      }
 
- const zodValidationMiddleware = (schema:AnyZodObject)=>
-    (req:Request,res:Response,next:NextFunction)=>{
-
-        try{
-            schema.parse({
-                body:req.body,
-                query:req.query,
-                params:req.params
-            })
-            next()
-        }
-        catch(err){
-            if(err instanceof ZodError){
-                return res.status(400).json({
-                    success:false,
-                    errors: err.errors.map(e=>({
-                        field: e.path.join('.'),
-                        message: e.message
-                    }))
-                })
-            }
-            next(err)
-        }
-
-
-
+      next(err);
     }
+  };
 
-    export default zodValidationMiddleware
-
+export default zodValidationMiddleware;

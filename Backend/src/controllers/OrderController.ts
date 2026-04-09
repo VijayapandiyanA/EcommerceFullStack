@@ -1,31 +1,28 @@
-import { Request,Response } from "express";
+import { Request,Response,NextFunction } from "express";
 import OrderService from "../services/OrderService";
 
 
 class OrderController{
-    async placeOrder(req:Request,res:Response){
+    async placeOrder(req:Request,res:Response,next:NextFunction){
         try{
             const userId= req.user?.id
             const order = await OrderService.placeOrder(Number(userId))
             res.status(201).json(order)
-        } catch (err: any) {
-  console.error("Order Error:", err); // 👈 VERY IMPORTANT
+        } catch (error) {
+            
 
-  res.status(400).json({
-    success: false,
-    message: err.message || "Error placing order"
-  });
+            next(error);
 }
     }
 
-    async getOrderHistory(req:Request,res:Response){
+    async getOrderHistory(req:Request,res:Response,next:NextFunction){
         try{
             const userId = req.user?.id
             const orders = await OrderService.getOrderHistory(Number(userId))
             res.status(200).json({success:true, orders})
         }
-        catch(err){
-            res.status(500).json({success:false, message:(err as Error).message})
+        catch(error){
+            next(error)
         }
     }
 }

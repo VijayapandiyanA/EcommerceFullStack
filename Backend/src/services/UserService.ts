@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import  jwt  from "jsonwebtoken";
 import UserRepository from "../repositories/UserRepository";
 import dotenv  from 'dotenv';
+import createError from "../utils/createError";
 dotenv.config()
 
 class UserService{
@@ -12,7 +13,7 @@ class UserService{
         role:"user"|"admin"
     }){
     const existingUser = await UserRepository.getUserByEmail(userdata.email)
-    if(existingUser) throw new Error("User with this email already exists")
+    if(existingUser) throw createError("User with this email already exists",400)
     
     const hashedPassword = await bcrypt.hash(userdata.password,10)
     const user = await UserRepository.createUser({...userdata, password: hashedPassword})
@@ -23,9 +24,9 @@ class UserService{
 
    async login(email:string,password:string){
     const user = await UserRepository.getUserByEmail(email)
-    if(!user) throw new Error("Invalid email")
+    if(!user) throw createError("Invalid email", 400)
         const isMatch = await bcrypt.compare(password,user.password)
-         if(!isMatch) throw new Error("Invalid Password")
+         if(!isMatch) throw createError("Invalid Password", 400)
             const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET!,

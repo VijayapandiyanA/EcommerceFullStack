@@ -1,4 +1,5 @@
 import CartRepository from "../repositories/CartRepository";
+import createError  from "../utils/createError";
 
 class CartService{
     async addTocart(data:{
@@ -13,12 +14,12 @@ class CartService{
     }
     async updateCartItem(userId:number, productId:number, quantity:number){
         const updated = await CartRepository.updateCartItem(userId, productId, quantity)
-        if(!updated) throw new Error("Cart item not found")
+        if(!updated) throw createError("Cart item not found", 404)
             return updated
     }
     async removeCartItem(userId:number, productId:number){
         const removed = await CartRepository.removeCartItem(userId, productId)
-        if(!removed) throw new Error("Cart item not found")
+        if(!removed) throw createError("Cart item not found", 404)
             return {message:"Cart item removed successfully"}
     }
     async clearCart(userId:number){
