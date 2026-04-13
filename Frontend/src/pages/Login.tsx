@@ -18,10 +18,15 @@ export default function Login() {
 
     const result = await dispatch(loginUser({ email, password }));
 
-    if (loginUser.fulfilled.match(result)) {
-      navigate("/");
-    }
-  };
+   if (loginUser.fulfilled.match(result)) {
+  const role = result.payload.user.role;
+
+  if (role === "admin") {
+    navigate("/admin");
+  } else {
+    navigate("/products");
+  }
+   }}
 
   return (
     <div>

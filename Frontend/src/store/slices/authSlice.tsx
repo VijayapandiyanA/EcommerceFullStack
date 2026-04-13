@@ -36,6 +36,9 @@ interface LoginResponse{
 
 }
 
+
+
+
 const initialState:AuthState={
 
     user:null,
@@ -44,6 +47,9 @@ const initialState:AuthState={
     error:null
 
 }
+
+
+
 
 export  const loginUser = createAsyncThunk<
 LoginResponse,
@@ -136,6 +142,11 @@ const authSlice = createSlice({
     });
 }
     })
+
+
+  
+
+
     
     
 
