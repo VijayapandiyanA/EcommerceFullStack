@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchProducts } from "../store/slices/productSlice";
-import { Navigate, useNavigate } from "react-router-dom";
+import { addToCartAPI, fetchCart } from "../store/slices/cartSlice";
+import { useNavigate } from "react-router-dom";
+import "../Products.css";
 
 export default function Products() {
   const dispatch = useAppDispatch();
@@ -9,122 +11,80 @@ export default function Products() {
     (state) => state.products
   );
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
-const navigate = useNavigate()
 
+  const handleAddToCart = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+    productId: number
+  ) => {
+    e.stopPropagation();
 
+    await dispatch(
+      addToCartAPI({
+        productId,
+        quantity: 1,
+      })
+    );
 
-
-
-
+    await dispatch(fetchCart());
+    navigate("/cart");
+  };
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h2 style={{ marginBottom: "20px" }}>👟 Products</h2>
+    <div className="products-page">
+      <div className="products-container">
+        <h2 className="products-title">👟 Products</h2>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {loading && <p className="products-status">Loading...</p>}
+        {error && <p className="products-status products-error">{error}</p>}
 
-      {/* GRID */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          gap: "20px",
-        }}
-      >
-        {products.map((product) => (
-          <div
-            key={product.id}
-            style={{
-              borderRadius: "12px",
-              overflow: "hidden",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-              background: "#fff",
-              transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "scale(1.03)";
-              e.currentTarget.style.boxShadow =
-                "0 8px 25px rgba(0,0,0,0.2)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.boxShadow =
-                "0 4px 15px rgba(0,0,0,0.1)";
+        <div className="products-grid">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="product-card"
+              onClick={() => navigate(`/products/${product.id}`)}
+            >
+              <img
+                src={product.imageUrl || "https://via.placeholder.com/250"}
+                alt={product.name}
+                className="product-card-image"
+              />
 
-    
-            }}
-            onClick={()=>navigate(`/products/${product.id}`)}
-            
-          >
-            {/* IMAGE */}
-            <img
-              src={
-                product.imageUrl ||
-                "https://via.placeholder.com/250"
-              }
-              alt={product.name}
-              style={{
-                width: "100%",
-                height: "200px",
-                objectFit: "cover",
-              }}
-            />
+              <div className="product-card-content">
+                <h3 className="product-card-name">{product.name}</h3>
 
-            {/* CONTENT */}
-            <div style={{ padding: "15px" }}>
-              <h3 style={{ margin: "0 0 10px 0" }}>
-                {product.name}
-              </h3>
+                <p className="product-card-category">{product.category}</p>
 
-              <p style={{ color: "#777", fontSize: "14px" }}>
-                {product.category}
-              </p>
+                <p className="product-card-price">₹ {product.price}</p>
 
-              <p
-                style={{
-                  fontWeight: "bold",
-                  fontSize: "18px",
-                  margin: "10px 0",
-                }}
-              >
-                ₹ {product.price}
-              </p>
+                <p
+                  className={
+                    product.stock > 0
+                      ? "product-card-stock in-stock"
+                      : "product-card-stock out-stock"
+                  }
+                >
+                  {product.stock > 0
+                    ? `In Stock (${product.stock})`
+                    : "Out of Stock"}
+                </p>
 
-              {/* STOCK */}
-              <p
-                style={{
-                  color: product.stock > 0 ? "green" : "red",
-                  fontSize: "13px",
-                }}
-              >
-                {product.stock > 0
-                  ? `In Stock (${product.stock})`
-                  : "Out of Stock"}
-              </p>
-
-              {/* BUTTON */}
-              <button
-                style={{
-                  marginTop: "10px",
-                  width: "100%",
-                  padding: "10px",
-                  border: "none",
-                  borderRadius: "8px",
-                  background: "#000",
-                  color: "#fff",
-                  cursor: "pointer",
-                }}
-              >
-                Add to Cart
-              </button>
+                <button
+                  className="product-card-btn"
+                  onClick={(e) => handleAddToCart(e, product.id)}
+                  disabled={product.stock <= 0}
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

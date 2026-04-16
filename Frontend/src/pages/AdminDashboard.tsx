@@ -6,12 +6,12 @@ import {
   createProduct,
   updateProduct,
 } from "../store/slices/productSlice";
+import "../AdminDashboard.css";
 
 export default function AdminDashboard() {
   const dispatch = useAppDispatch();
   const { products } = useAppSelector((state) => state.products);
 
-  // 🔥 FORM STATE
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -19,7 +19,6 @@ export default function AdminDashboard() {
   const [stock, setStock] = useState("");
   const [category, setCategory] = useState("");
 
-  // 🔥 EDIT MODE
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
 
@@ -27,7 +26,6 @@ export default function AdminDashboard() {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  // 🔥 RESET FORM
   const resetForm = () => {
     setName("");
     setDescription("");
@@ -39,7 +37,6 @@ export default function AdminDashboard() {
     setEditId(null);
   };
 
-  // 🔥 CREATE / UPDATE
   const handleSubmit = async () => {
     if (!name || !price) {
       alert("Name and price required");
@@ -56,7 +53,6 @@ export default function AdminDashboard() {
     };
 
     if (isEdit && editId !== null) {
-      // ✏️ UPDATE
       await dispatch(
         updateProduct({
           id: editId,
@@ -64,7 +60,6 @@ export default function AdminDashboard() {
         })
       );
     } else {
-      // ➕ CREATE
       await dispatch(createProduct(payload));
     }
 
@@ -72,7 +67,6 @@ export default function AdminDashboard() {
     dispatch(fetchProducts());
   };
 
-  // 🔥 EDIT CLICK
   const handleEdit = (product: any) => {
     setIsEdit(true);
     setEditId(product.id);
@@ -86,101 +80,114 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>👑 Admin Dashboard</h2>
+    <div className="admin-page">
+      <div className="admin-container">
+        <h2 className="admin-title"> Admin Dashboard</h2>
 
-      {/* 🔥 FORM */}
-      <div style={{ marginBottom: "20px" }}>
-        <h3>{isEdit ? "Edit Product" : "Add Product"}</h3>
+        {/* FORM */}
+        <div className="admin-form-card">
+          <h3 className="admin-form-title">
+            {isEdit ? "Edit Product" : "Add Product"}
+          </h3>
 
-        <input
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+          <div className="admin-form-grid">
+            <input
+              className="admin-input"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
 
-        <input
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+            <input
+              className="admin-input"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
 
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
+            <input
+              className="admin-input"
+              type="number"
+              placeholder="Price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
 
-        <input
-          placeholder="Image URL"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-        />
+            <input
+              className="admin-input"
+              placeholder="Image URL"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+            />
 
-        <input
-          type="number"
-          placeholder="Stock"
-          value={stock}
-          onChange={(e) => setStock(e.target.value)}
-        />
+            <input
+              className="admin-input"
+              type="number"
+              placeholder="Stock"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+            />
 
-        <input
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
+            <input
+              className="admin-input"
+              placeholder="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            />
+          </div>
 
-        <div style={{ marginTop: "10px" }}>
-          <button onClick={handleSubmit}>
-            {isEdit ? "Update Product" : "Create Product"}
-          </button>
-
-          {isEdit && (
-            <button
-              onClick={resetForm}
-              style={{ marginLeft: "10px" }}
-            >
-              Cancel
+          <div className="admin-btn-group">
+            <button className="admin-submit-btn" onClick={handleSubmit}>
+              {isEdit ? "Update Product" : "Create Product"}
             </button>
-          )}
+
+            {isEdit && (
+              <button className="admin-cancel-btn" onClick={resetForm}>
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* PRODUCT LIST */}
+        <div className="admin-products-grid">
+          {products.map((product) => (
+            <div key={product.id} className="admin-product-card">
+              <img
+                src={product.imageUrl || "https://via.placeholder.com/100"}
+                alt={product.name}
+                className="admin-product-image"
+              />
+
+              <div className="admin-product-content">
+                <h3 className="admin-product-name">{product.name}</h3>
+                <p className="admin-product-desc">{product.description}</p>
+                <p className="admin-product-price">₹ {product.price}</p>
+                <p className="admin-product-stock">Stock: {product.stock}</p>
+                <p className="admin-product-category">
+                  Category: {product.category}
+                </p>
+
+                <div className="admin-card-actions">
+                  <button
+                    className="admin-edit-btn"
+                    onClick={() => handleEdit(product)}
+                  >
+                    ✏️ Edit
+                  </button>
+
+                  <button
+                    className="admin-delete-btn"
+                    onClick={() => dispatch(deleteProduct(product.id))}
+                  >
+                    🗑 Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* 🔥 PRODUCT LIST */}
-      {products.map((product) => (
-        <div
-          key={product.id}
-          style={{
-            border: "1px solid #ddd",
-            margin: "10px",
-            padding: "10px",
-            borderRadius: "10px",
-          }}
-        >
-          <img
-            src={product.imageUrl || "https://via.placeholder.com/100"}
-            width="100"
-          />
-
-          <h3>{product.name}</h3>
-          <p>{product.description}</p>
-          <p>₹ {product.price}</p>
-          <p>Stock: {product.stock}</p>
-          <p>Category: {product.category}</p>
-
-          <button onClick={() => handleEdit(product)}>
-            ✏️ Edit
-          </button>
-
-          <button
-            onClick={() => dispatch(deleteProduct(product.id))}
-            style={{ color: "red", marginLeft: "10px" }}
-          >
-            🗑 Delete
-          </button>
-        </div>
-      ))}
     </div>
   );
 }

@@ -1,84 +1,86 @@
-import { useEffect,useState } from "react";
-import { useParams } from "react-router-dom";
-import { useAppDispatch,useAppSelector } from "../store/hooks";
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchProductById } from "../store/slices/productSlice";
-import { addToCartAPI } from "../store/slices/cartSlice";
-
-
-import React from 'react'
-
-
+import { addToCartAPI, fetchCart } from "../store/slices/cartSlice";
+import "../ProductDetails.css";
 
 export const ProductDetails = () => {
+  const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-const {id} = useParams()
-const dispatch = useAppDispatch()
-const {selectedProduct, loading, error}= useAppSelector((state)=>
-state.products
-)
+  const { selectedProduct, loading, error } = useAppSelector(
+    (state) => state.products
+  );
 
-useEffect(()=>{
-    if(id){
-      dispatch(fetchProductById(Number(id)))  
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchProductById(Number(id)));
     }
-},[id,dispatch])
+  }, [id, dispatch]);
 
-if(loading) return <p>Loading.....</p>
-if(error) return <p style={{color:"red"}}>{error}</p>
-if(!selectedProduct) return <p>Product Not Found</p>
+  if (loading) return <p className="product-status">Loading.....</p>;
+  if (error) return <p className="product-status error-text">{error}</p>;
+  if (!selectedProduct) return <p className="product-status">Product Not Found</p>;
+
+  const handleAddToCart = async () => {
+    if (!selectedProduct) return;
+
+    await dispatch(
+      addToCartAPI({
+        productId: selectedProduct.id,
+        quantity: 1,
+      })
+    );
+
+    await dispatch(fetchCart()); // refresh cart state
+    navigate("/cart");
+  };
 
   return (
-    <div style={{ padding: "30px" }}>
-      <div style={{ display: "flex", gap: "30px" }}>
-        
-        {/* IMAGE */}
-        <img
-          src={
-            selectedProduct.imageUrl ||
-            "https://via.placeholder.com/300"
-          }
-          alt={selectedProduct.name}
-          style={{ width: "300px", borderRadius: "10px" }}
-        />
+    <div className="product-details-page">
+      <div className="product-details-card">
+        <div className="product-image-box">
+          <img
+            src={selectedProduct.imageUrl || "https://via.placeholder.com/300"}
+            alt={selectedProduct.name}
+            className="product-detail-image"
+          />
+        </div>
 
-        {/* DETAILS */}
-        <div>
-          <h2>{selectedProduct.name}</h2>
-          <p>{selectedProduct.description}</p>
+        <div className="product-info-box">
+          <h2 className="product-title">{selectedProduct.name}</h2>
 
-          <h3>₹ {selectedProduct.price}</h3>
+          <p className="product-description">{selectedProduct.description}</p>
 
-          <p>
-            Category: <b>{selectedProduct.category}</b>
+          <h3 className="product-price">₹ {selectedProduct.price}</h3>
+
+          <p className="product-category">
+            Category: <span>{selectedProduct.category}</span>
           </p>
 
           <p
-            style={{
-              color:
-                selectedProduct.stock > 0 ? "green" : "red",
-            }}
+            className={
+              selectedProduct.stock > 0
+                ? "product-stock in-stock"
+                : "product-stock out-stock"
+            }
           >
             {selectedProduct.stock > 0
               ? `In Stock (${selectedProduct.stock})`
               : "Out of Stock"}
           </p>
 
-  <button
-  onClick={() => {
-    if (!selectedProduct) return;
-
-    dispatch(
-      addToCartAPI({
-        productId: selectedProduct.id,
-        quantity: 1,
-      })
-    );
-  }}
->
-  Add to Cart
-</button>
+          <button
+            className="add-cart-btn"
+            onClick={handleAddToCart}
+            disabled={selectedProduct.stock <= 0}
+          >
+            Add to Cart
+          </button>
         </div>
       </div>
     </div>
   );
-}
+};

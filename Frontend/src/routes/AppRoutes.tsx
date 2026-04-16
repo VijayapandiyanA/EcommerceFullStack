@@ -7,12 +7,16 @@ import Cart from "../pages/Cart";
 import Orders from "../pages/Orders";
 import AdminDashboard from "../pages/AdminDashboard";
 import AdminRoute from "../components/AdminRoute";
+import Home from "../pages/Home";
+import Navbar from "../components/Navbar";
 
 
 export const AppRoutes = () => {
   return (
 <BrowserRouter>
+<Navbar/>
 <Routes>
+  <Route path="/" element={<Home/>}/>
     <Route path="/login" element={<Login/>}/>
     <Route path="/register" element={<Register/>}/>
     <Route path="/products" element={<Products />} />

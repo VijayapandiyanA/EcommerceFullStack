@@ -10,7 +10,7 @@ function App() {
     <>
 
 
- <Home /> 
+  <AppRoutes/> 
     
     </>
   )
@@ -20,5 +20,5 @@ export default App
 
 
 
-  {/* <AppRoutes/> */}
+ 
   
